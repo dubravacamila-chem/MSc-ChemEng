@@ -2,96 +2,65 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MSc Amila | Kinetic Reactor Simulator</title>
+    <title>MSc Amila | Kinetic Simulator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background: #05070a; color: #e2e8f0; }
-        .glass { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .accent-blue { color: #3b82f6; }
-        .bg-glow { box-shadow: 0 0 20px rgba(59, 130, 246, 0.1); }
+        body { background: #05070a; color: #e2e8f0; font-family: sans-serif; }
+        .glass { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        input[type="range"] { accent-color: #3b82f6; cursor: pointer; }
     </style>
 </head>
-<body class="p-6 md:p-12">
+<body class="p-6 min-h-screen flex flex-col items-center">
 
-    <nav class="glass rounded-2xl p-6 mb-8 flex justify-between items-center bg-glow">
-        <div>
-            <span class="text-[10px] font-black tracking-widest text-blue-500 uppercase">Chemical Kinetics Module</span>
-            <h1 class="text-2xl font-extrabold uppercase">MSc <span class="accent-blue text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">Amila Dubravac Kaplan</span></h1>
+    <div class="w-full max-w-6xl glass rounded-3xl p-8 shadow-2xl">
+        <div class="flex justify-between items-center mb-10 border-b border-slate-700 pb-6">
+            <div>
+                <h1 class="text-2xl font-black tracking-tighter uppercase">MSc <span class="text-blue-500">Amila Dubravac Kaplan</span></h1>
+                <p class="text-[10px] text-slate-500 font-mono italic uppercase tracking-[0.3em]">Kinetic Reactor Pilot v1.0</p>
+            </div>
+            <div class="text-right">
+                <span class="px-3 py-1 bg-blue-600/20 text-blue-400 rounded-full text-[10px] font-bold tracking-widest uppercase border border-blue-500/30">Verified Model ✓</span>
+            </div>
         </div>
-        <div class="text-right border-l border-slate-700 pl-6">
-            <p class="text-[9px] text-slate-500 font-bold uppercase tracking-widest">Reactor Dimensioning Tool</p>
-            <p class="text-xs font-mono text-emerald-500 italic">Arrhenius Model v2.1 ✓</p>
-        </div>
-    </nav>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        <div class="glass rounded-3xl p-8 lg:col-span-1 border-t-4 border-blue-500">
-            <h2 class="text-lg font-bold mb-8 flex items-center">⚙️ Kinetic Parameters</h2>
-            
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
             <div class="space-y-8">
-                <div class="space-y-3">
-                    <div class="flex justify-between">
-                        <label class="text-[10px] font-black text-slate-500 uppercase">Energy of Activation (Ea)</label>
-                        <span id="eaVal" class="text-blue-400 font-bold">50 kJ/mol</span>
-                    </div>
-                    <input type="range" id="ea" min="20" max="150" value="50" oninput="simulate()" class="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+                <div class="bg-slate-900/50 p-6 rounded-2xl border border-slate-800">
+                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-4 italic">Energy of Activation (Ea)</label>
+                    <input type="range" id="ea" min="30" max="100" value="50" class="w-full" oninput="runSim()">
+                    <div class="flex justify-between mt-2 text-blue-400 font-bold mono"><span id="eaVal">50</span> kJ/mol</div>
                 </div>
 
-                <div class="space-y-3">
-                    <div class="flex justify-between">
-                        <label class="text-[10px] font-black text-slate-500 uppercase">Operating Temp (T)</label>
-                        <span id="tVal" class="text-purple-400 font-bold">298 K</span>
-                    </div>
-                    <input type="range" id="temp" min="273" max="500" value="298" oninput="simulate()" class="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+                <div class="bg-slate-900/50 p-6 rounded-2xl border border-slate-800 text-center">
+                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-4 italic italic">Rate Constant (k)</label>
+                    <div id="kRes" class="text-4xl font-black text-white font-mono tracking-tighter">--</div>
+                    <p class="text-[10px] text-slate-600 mt-2 tracking-widest font-bold uppercase">Sec⁻¹</p>
                 </div>
-
-                <div class="p-6 bg-blue-500/5 rounded-2xl border border-blue-500/20 text-center">
-                    <p class="text-[10px] text-slate-500 font-bold uppercase mb-2 italic tracking-tighter text-left">Rate Constant (k)</p>
-                    <div class="flex justify-center items-baseline gap-2">
-                        <span id="kRes" class="text-4xl font-black font-mono tracking-tighter">--</span>
-                        <span class="text-xs text-slate-500">s⁻¹</span>
-                    </div>
-                </div>
-
-                <div class="text-[10px] text-slate-500 leading-relaxed p-4 bg-slate-900/50 rounded-xl italic">
-                    Note: Based on first-order reaction kinetics. Reaction follows: C<sub>A</sub> = C<sub>A0</sub> * e<sup>-kt</sup>
-                </div>
+                
+                <button onclick="window.print()" class="w-full py-4 rounded-xl border border-slate-700 hover:bg-blue-600 hover:border-blue-500 transition-all font-bold text-xs uppercase tracking-[0.2em]">Generate Report</button>
             </div>
-        </div>
 
-        <div class="lg:col-span-2 glass rounded-3xl p-8 min-h-[500px] relative">
-            <div class="flex justify-between mb-6">
-                <h2 class="text-lg font-bold">📊 Conversion Curve (C<sub>A</sub> / C<sub>A0</sub>)</h2>
-                <div class="flex gap-4 text-[10px] font-bold">
-                    <span class="text-blue-500 uppercase tracking-widest underline decoration-2 underline-offset-4">Time-Domain Analysis</span>
-                </div>
+            <div class="lg:col-span-2 glass rounded-2xl p-6 h-[400px]">
+                <canvas id="kinChart"></canvas>
             </div>
-            <canvas id="kineticChart"></canvas>
         </div>
     </div>
 
     <script>
-        const R = 8.314; // Gas constant J/(mol*K)
-        const A = 1000000; // Frequency factor (simplified)
-        
-        const ctx = document.getElementById('kineticChart').getContext('2d');
+        const ctx = document.getElementById('kinChart').getContext('2d');
         let chart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: Array.from({length: 101}, (_, i) => i), // 0 to 100 seconds
+                labels: Array.from({length: 101}, (_, i) => i + 's'),
                 datasets: [{
                     label: 'Concentration [A]',
                     borderColor: '#3b82f6',
-                    backgroundColor: 'rgba(59, 130, 246, 0.05)',
                     borderWidth: 4,
+                    pointRadius: 0,
                     fill: true,
-                    data: [],
-                    tension: 0.3,
-                    pointRadius: 0
+                    backgroundColor: 'rgba(59, 130, 246, 0.05)',
+                    data: []
                 }]
             },
             options: {
@@ -99,42 +68,32 @@
                 maintainAspectRatio: false,
                 plugins: { legend: { display: false } },
                 scales: {
-                    y: { 
-                        grid: { color: 'rgba(255,255,255,0.02)' }, 
-                        ticks: { color: '#64748b' },
-                        title: { display: true, text: 'Concentration (mol/L)', color: '#64748b', font: { size: 10 } }
-                    },
-                    x: { 
-                        grid: { display: false }, 
-                        ticks: { color: '#64748b' },
-                        title: { display: true, text: 'Time (seconds)', color: '#64748b', font: { size: 10 } }
-                    }
+                    y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b' } },
+                    x: { grid: { display: false }, ticks: { color: '#64748b', maxRotation: 0 } }
                 }
             }
         });
 
-        function simulate() {
-            const Ea = document.getElementById('ea').value * 1000; // to Joules
-            const T = document.getElementById('temp').value;
+        function runSim() {
+            const Ea = document.getElementById('ea').value;
+            const T = 350; // Fiksna temperatura za preglednost
+            const k = 1000000 * Math.exp(-(Ea * 1000) / (8.314 * T));
             
-            // Arrhenius: k = A * e^(-Ea / (R*T))
-            const k = A * Math.exp(-Ea / (R * T));
-            
-            document.getElementById('eaVal').innerText = (Ea/1000) + " kJ/mol";
-            document.getElementById('tVal').innerText = T + " K";
-            document.getElementById('kRes').innerText = k.toExponential(3);
+            document.getElementById('eaVal').innerText = Ea;
+            document.getElementById('kRes').innerText = k.toExponential(2);
 
-            // Calculate concentration over time: C = C0 * e^(-kt)
-            const C0 = 1.0;
             let data = [];
             for(let t = 0; t <= 100; t++) {
-                data.push(C0 * Math.exp(-k * t));
+                data.push(Math.exp(-k * t));
             }
-
             chart.data.datasets[0].data = data;
             chart.update();
         }
 
+        window.onload = runSim;
+    </script>
+</body>
+</html>
         window.onload = simulate;
     </script>
 </body>
