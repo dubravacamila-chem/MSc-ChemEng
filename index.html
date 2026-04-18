@@ -8,32 +8,32 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background: #05070a; color: #e2e8f0; }
+        body { font-family: 'Inter', sans-serif; background: #05070a; color: #e2e8f0; margin: 0; padding: 0; }
         .mono { font-family: 'JetBrains Mono', monospace; }
         .glass { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
         .accent-gradient { background: linear-gradient(90deg, #3b82f6, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .glow { box-shadow: 0 0 20px rgba(59, 130, 246, 0.15); }
+        input[type="range"] { -webkit-appearance: none; width: 100%; background: transparent; }
         input[type="range"]::-webkit-slider-thumb { background: #3b82f6; border: 2px solid white; height: 18px; width: 18px; border-radius: 50%; cursor: pointer; -webkit-appearance: none; margin-top: -8px; }
-        .border-glow-blue { border-top: 4px solid #3b82f6; }
-        .border-glow-emerald { border-bottom: 4px solid #10b981; }
+        input[type="range"]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: #1e293b; border-radius: 2px; }
     </style>
 </head>
 <body class="p-4 md:p-10 min-h-screen">
 
     <nav class="glass rounded-2xl p-6 mb-8 flex justify-between items-center glow">
         <div>
-            <span class="text-[10px] font-black tracking-[0.4em] uppercase text-blue-500">Engineering Pilot Phase</span>
+            <span class="text-[10px] font-black tracking-[0.4em] text-blue-500 uppercase">Engineering Pilot Phase</span>
             <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight">MSc <span class="accent-gradient">Amila Dubravac Kaplan</span></h1>
         </div>
         <div class="text-right hidden md:block border-l border-slate-700 pl-6">
-            <p class="text-[9px] text-slate-500 font-bold uppercase tracking-widest">Intelektualno Vlasništvo</p>
-            <p class="text-xs font-mono text-emerald-500 italic font-semibold">Verified Digital Signature ✓</p>
+            <p class="text-[9px] text-slate-500 font-bold uppercase tracking-widest text-right">Intelektualno Vlasništvo</p>
+            <p class="text-xs font-mono text-emerald-500 italic font-semibold text-right">Verified Digital Signature ✓</p>
         </div>
     </nav>
 
     <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
         
-        <div class="glass rounded-3xl p-8 xl:col-span-1 border-glow-blue">
+        <div class="glass rounded-3xl p-8 xl:col-span-1 border-t-4 border-blue-600">
             <h2 class="text-xl font-bold mb-8 flex items-center">
                 <span class="p-2 bg-blue-600/20 rounded-lg mr-3 text-blue-400">⚙️</span> Control Panel
             </h2>
@@ -41,7 +41,7 @@
             <div class="space-y-10">
                 <div class="space-y-4">
                     <label class="block text-[10px] uppercase font-black text-slate-500 tracking-widest underline decoration-blue-500/50 underline-offset-4">Chemical Compound</label>
-                    <select id="compound" onchange="calculate()" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 font-bold focus:ring-2 focus:ring-blue-500 outline-none transition-all cursor-pointer">
+                    <select id="compound" onchange="updateSystem()" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 font-bold outline-none cursor-pointer">
                         <option value="Water">H2O - Distilled Water</option>
                         <option value="Ethanol">C2H5OH - Ethanol</option>
                         <option value="Acetone">C3H6O - Acetone</option>
@@ -51,60 +51,51 @@
 
                 <div class="space-y-4">
                     <div class="flex justify-between items-end">
-                        <label class="text-[10px] uppercase font-black text-slate-500 tracking-widest">System Temperature</label>
+                        <label class="text-[10px] uppercase font-black text-slate-500 tracking-widest">Temperature</label>
                         <span id="tempDisplay" class="text-3xl font-black text-blue-400 mono tracking-tighter">25.0 °C</span>
                     </div>
-                    <input type="range" id="temp" min="0" max="150" value="25" step="0.1" oninput="calculate()" class="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer">
-                    <div class="flex justify-between text-[10px] text-slate-600 font-bold">
-                        <span>LOWER LIMIT</span>
-                        <span>UPPER LIMIT</span>
-                    </div>
+                    <input type="range" id="temp" min="0" max="150" value="25" step="0.1" oninput="updateSystem()" class="cursor-pointer">
                 </div>
 
-                <div class="p-6 bg-blue-600/5 rounded-2xl border border-blue-500/10 mt-10 glow">
-                    <p class="text-[10px] font-black text-blue-400 uppercase tracking-tighter mb-2 italic">Calculated Saturation Pressure (P)</p>
-                    <div class="flex items-baseline gap-2">
+                <div class="p-6 bg-blue-600/5 rounded-2xl border border-blue-500/10 mt-10 glow text-center">
+                    <p class="text-[10px] font-black text-blue-400 uppercase tracking-tighter mb-2 italic">Vapor Pressure (P)</p>
+                    <div class="flex justify-center items-baseline gap-2">
                         <span id="pRes" class="text-5xl font-black tracking-tighter text-white font-mono">--</span>
                         <span class="text-xl font-bold text-slate-500 uppercase">mmHg</span>
                     </div>
                 </div>
 
-                <button onclick="window.print()" class="w-full bg-slate-800 hover:bg-blue-600 hover:text-white border border-slate-700 py-4 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-3 tracking-widest">
-                    <span>📥</span> EXPORT DATA REPORT (PDF)
+                <button onclick="window.print()" class="w-full bg-slate-800 hover:bg-blue-600 hover:text-white border border-slate-700 py-4 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-3 tracking-widest uppercase">
+                    <span>📥</span> Export Lab Report
                 </button>
             </div>
         </div>
 
         <div class="xl:col-span-2 space-y-8">
-            
             <div class="glass rounded-3xl p-8 h-[500px] relative glow">
-                 <div class="flex justify-between items-center mb-6">
+                <div class="flex justify-between items-center mb-6">
                     <h2 class="text-xl font-bold flex items-center">
                         <span class="p-2 bg-purple-600/20 rounded-lg mr-3 text-purple-400">📊</span> Thermodynamic Curve
                     </h2>
-                    <span class="text-[10px] font-mono text-slate-500 italic underline">Antoine Equation Model</span>
-                 </div>
-                <canvas id="mainChart"></canvas>
+                    <span class="text-[10px] font-mono text-slate-500 italic">Antoine Equation Model</span>
+                </div>
+                <div class="absolute inset-0 p-8 pt-20">
+                    <canvas id="mainChart"></canvas>
+                </div>
             </div>
 
-            <div class="glass rounded-3xl p-8 grid grid-cols-1 md:grid-cols-2 gap-8 border-glow-emerald">
+            <div class="glass rounded-3xl p-8 grid grid-cols-1 md:grid-cols-2 gap-8 border-b-4 border-emerald-600">
                 <div>
                     <h3 class="text-emerald-400 font-black uppercase text-xs tracking-widest mb-4">Analytical Module</h3>
-                    <p class="text-sm text-slate-500 mb-6 leading-relaxed">Beer-Lambert verification engine for concentration validation.</p>
+                    <p class="text-sm text-slate-500 mb-6 leading-relaxed italic">Beer-Lambert concentration engine.</p>
                     <div class="grid grid-cols-2 gap-4">
-                        <div class="space-y-1">
-                            <span class="text-[9px] font-bold text-slate-600 uppercase ml-2">Absorbance</span>
-                            <input type="number" id="abs" value="0.500" class="w-full bg-slate-900 border border-slate-700 p-4 rounded-xl text-center font-bold focus:border-emerald-500 outline-none">
-                        </div>
-                        <div class="space-y-1">
-                            <span class="text-[9px] font-bold text-slate-600 uppercase ml-2">ε (Molar Abs)</span>
-                            <input type="number" id="eps" value="5000" class="w-full bg-slate-900 border border-slate-700 p-4 rounded-xl text-center font-bold focus:border-emerald-500 outline-none">
-                        </div>
+                        <input type="number" id="abs" value="0.500" placeholder="Abs" class="w-full bg-slate-900 border border-slate-700 p-4 rounded-xl text-center font-bold outline-none focus:border-emerald-500 transition-all">
+                        <input type="number" id="eps" value="5000" placeholder="Epsilon" class="w-full bg-slate-900 border border-slate-700 p-4 rounded-xl text-center font-bold outline-none focus:border-emerald-500 transition-all">
                     </div>
                 </div>
                 <div class="flex flex-col justify-center items-center bg-emerald-600/5 rounded-2xl border border-emerald-500/10 p-6 text-center glow">
-                    <span class="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em] mb-2">Resultant Concentration</span>
-                    <span id="concRes" class="text-3xl font-black text-white mono leading-none tracking-tighter">1.0000e-4</span>
+                    <span class="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-2">Result</span>
+                    <span id="concRes" class="text-3xl font-black text-white mono">1.0000e-4</span>
                     <span class="text-[10px] font-bold text-slate-500 uppercase mt-2">mol / L</span>
                 </div>
             </div>
@@ -112,13 +103,11 @@
     </div>
 
     <footer class="mt-12 text-center text-slate-700">
-        <div class="h-[1px] w-32 bg-slate-800 mx-auto mb-6"></div>
-        <p class="text-[10px] uppercase font-black tracking-[0.6em] mb-2 accent-gradient">Dubravac Kaplan • Chemical Engineering Portfolio</p>
-        <p class="text-[9px] font-mono italic">All rights reserved © 2026. Data sourced from NIST Standard Reference Database.</p>
+        <p class="text-[10px] uppercase font-black tracking-[0.5em] mb-2 accent-gradient">Dubravac Kaplan • Chemical Engineering Portfolio</p>
+        <p class="text-[9px] font-mono italic">All rights reserved © 2026. NIST Database Verified.</p>
     </footer>
 
     <script>
-        // NIST Antoine Coefficients
         const constants = {
             "Water": { A: 8.07131, B: 1730.63, C: 233.426 },
             "Ethanol": { A: 8.20417, B: 1642.89, C: 230.300 },
@@ -127,88 +116,6 @@
         };
 
         const ctx = document.getElementById('mainChart').getContext('2d');
-        let chart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: [],
-                datasets: [{
-                    label: 'P (mmHg)',
-                    borderColor: '#3b82f6',
-                    backgroundColor: 'rgba(59, 130, 246, 0.05)',
-                    borderWidth: 3,
-                    pointBackgroundColor: '#3b82f6',
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2,
-                    pointRadius: (context) => {
-                        const tempVal = parseFloat(document.getElementById('temp').value);
-                        return labels[context.dataIndex] === Math.round(tempVal/5)*5 ? 6 : 0;
-                    },
-                    fill: true,
-                    data: [],
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#475569', font: { family: 'JetBrains Mono' } } },
-                    x: { grid: { display: false }, ticks: { color: '#475569', font: { family: 'JetBrains Mono' } } }
-                }
-            }
-        });
-
-        let labels = [];
-        for (let i = 0; i <= 150; i += 5) labels.push(i);
-
-        function calculate() {
-            const comp = document.getElementById('compound').value;
-            const t = parseFloat(document.getElementById('temp').value);
-            const nist = constants[comp];
-
-            // P = 10^(A - (B / (T + C)))
-            const p = Math.pow(10, nist.A - (nist.B / (t + nist.C)));
-
-            document.getElementById('tempDisplay').innerText = t.toFixed(1) + " °C";
-            document.getElementById('pRes').innerText = p.toFixed(2);
-
-            updateChart(nist);
-            validateAnalytical();
-        }
-
-        function updateChart(nist) {
-            let points = labels.map(temp => Math.pow(10, nist.A - (nist.B / (temp + nist.C))).toFixed(2));
-            chart.data.labels = labels;
-            chart.data.datasets[0].data = points;
-            chart.update('none'); // Update without animation for performance
-        }
-
-        function validateAnalytical() {
-            const a = document.getElementById('abs').value;
-            const e = document.getElementById('eps').value;
-            if(a && e && e != 0) {
-                const c = a / (e * 1);
-                document.getElementById('concRes').innerText = c.toExponential(4);
-            }
-        }
-
-        calculate();
-        // Event listeners for analytical inputs
-        document.getElementById('abs').addEventListener('input', validateAnalytical);
-        document.getElementById('eps').addEventListener('input', validateAnalytical);
-<script>
-        // NIST Antoine Coefficients
-        const constants = {
-            "Water": { A: 8.07131, B: 1730.63, C: 233.426 },
-            "Ethanol": { A: 8.20417, B: 1642.89, C: 230.300 },
-            "Acetone": { A: 7.02447, B: 1161.00, C: 224.000 },
-            "Benzene": { A: 6.90565, B: 1211.033, C: 220.79 }
-        };
-
-        const ctx = document.getElementById('mainChart').getContext('2d');
-        
-        // Generisanje labela od 0 do 150 stepeni
         let labels = [];
         for (let i = 0; i <= 150; i += 5) labels.push(i);
 
@@ -217,7 +124,6 @@
             data: {
                 labels: labels,
                 datasets: [{
-                    label: 'P (mmHg)',
                     borderColor: '#3b82f6',
                     backgroundColor: 'rgba(59, 130, 246, 0.1)',
                     borderWidth: 3,
@@ -232,20 +138,13 @@
                 maintainAspectRatio: false,
                 plugins: { legend: { display: false } },
                 scales: {
-                    y: { 
-                        grid: { color: 'rgba(255,255,255,0.05)' }, 
-                        ticks: { color: '#64748b' },
-                        beginAtZero: true
-                    },
-                    x: { 
-                        grid: { display: false }, 
-                        ticks: { color: '#64748b' } 
-                    }
+                    y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b' } },
+                    x: { grid: { display: false }, ticks: { color: '#64748b' } }
                 }
             }
         });
 
-        function calculate() {
+        function updateSystem() {
             const comp = document.getElementById('compound').value;
             const t = parseFloat(document.getElementById('temp').value);
             const nist = constants[comp];
@@ -256,33 +155,23 @@
             document.getElementById('tempDisplay').innerText = t.toFixed(1) + " °C";
             document.getElementById('pRes').innerText = p.toFixed(2);
 
-            // Update podataka na grafikonu
-            let points = labels.map(temp => {
-                return Math.pow(10, nist.A - (nist.B / (temp + nist.C))).toFixed(2);
-            });
-            
+            let points = labels.map(temp => Math.pow(10, nist.A - (nist.B / (temp + nist.C))));
             chart.data.datasets[0].data = points;
             chart.update();
-            validateAnalytical();
-        }
 
-        function validateAnalytical() {
             const a = document.getElementById('abs').value;
             const e = document.getElementById('eps').value;
             if(a && e && e != 0) {
-                const c = a / (e * 1);
-                document.getElementById('concRes').innerText = c.toExponential(4);
+                document.getElementById('concRes').innerText = (a / e).toExponential(4);
             }
         }
 
-        // Ovo pokreće sve čim se stranica učita
-        window.onload = function() {
-            calculate();
-        };
+        // Event listeners for analytical module
+        document.getElementById('abs').addEventListener('input', updateSystem);
+        document.getElementById('eps').addEventListener('input', updateSystem);
 
-        // Event listeneri za promjene
-        document.getElementById('abs').addEventListener('input', validateAnalytical);
-        document.getElementById('eps').addEventListener('input', validateAnalytical);
+        // Initial launch
+        window.onload = updateSystem;
     </script>
 </body>
 </html>
