@@ -197,6 +197,92 @@
         // Event listeners for analytical inputs
         document.getElementById('abs').addEventListener('input', validateAnalytical);
         document.getElementById('eps').addEventListener('input', validateAnalytical);
+<script>
+        // NIST Antoine Coefficients
+        const constants = {
+            "Water": { A: 8.07131, B: 1730.63, C: 233.426 },
+            "Ethanol": { A: 8.20417, B: 1642.89, C: 230.300 },
+            "Acetone": { A: 7.02447, B: 1161.00, C: 224.000 },
+            "Benzene": { A: 6.90565, B: 1211.033, C: 220.79 }
+        };
+
+        const ctx = document.getElementById('mainChart').getContext('2d');
+        
+        // Generisanje labela od 0 do 150 stepeni
+        let labels = [];
+        for (let i = 0; i <= 150; i += 5) labels.push(i);
+
+        let chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'P (mmHg)',
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    borderWidth: 3,
+                    pointRadius: 0,
+                    fill: true,
+                    data: [],
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { 
+                        grid: { color: 'rgba(255,255,255,0.05)' }, 
+                        ticks: { color: '#64748b' },
+                        beginAtZero: true
+                    },
+                    x: { 
+                        grid: { display: false }, 
+                        ticks: { color: '#64748b' } 
+                    }
+                }
+            }
+        });
+
+        function calculate() {
+            const comp = document.getElementById('compound').value;
+            const t = parseFloat(document.getElementById('temp').value);
+            const nist = constants[comp];
+
+            // P = 10^(A - (B / (T + C)))
+            const p = Math.pow(10, nist.A - (nist.B / (t + nist.C)));
+
+            document.getElementById('tempDisplay').innerText = t.toFixed(1) + " °C";
+            document.getElementById('pRes').innerText = p.toFixed(2);
+
+            // Update podataka na grafikonu
+            let points = labels.map(temp => {
+                return Math.pow(10, nist.A - (nist.B / (temp + nist.C))).toFixed(2);
+            });
+            
+            chart.data.datasets[0].data = points;
+            chart.update();
+            validateAnalytical();
+        }
+
+        function validateAnalytical() {
+            const a = document.getElementById('abs').value;
+            const e = document.getElementById('eps').value;
+            if(a && e && e != 0) {
+                const c = a / (e * 1);
+                document.getElementById('concRes').innerText = c.toExponential(4);
+            }
+        }
+
+        // Ovo pokreće sve čim se stranica učita
+        window.onload = function() {
+            calculate();
+        };
+
+        // Event listeneri za promjene
+        document.getElementById('abs').addEventListener('input', validateAnalytical);
+        document.getElementById('eps').addEventListener('input', validateAnalytical);
     </script>
 </body>
 </html>
